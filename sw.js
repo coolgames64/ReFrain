@@ -1,5 +1,5 @@
 /* Refrain service worker — offline app shell + runtime font cache */
-const CACHE = "refrain-v1";
+const CACHE = "refrain-v2";
 const FONT_CACHE = "refrain-fonts-v1";
 const ASSETS = [
   "./",
@@ -13,9 +13,14 @@ const ASSETS = [
 ];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting())
-  );
+  // Note: no skipWaiting() here — the new version waits until the user taps
+  // "Update now", so people aren't reloaded mid-task.
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
+});
+
+// The page asks the waiting worker to take over when the user accepts the update.
+self.addEventListener("message", (e) => {
+  if (e.data && e.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("activate", (e) => {
