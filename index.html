@@ -189,27 +189,64 @@
 
   /* ---------- bottom actions ---------- */
   .actions{ width:100%; display:flex; flex-direction:column; gap:12px; margin-top:4px; }
-  .primary{
-    width:100%; border:none; border-radius:16px; padding:17px; font-size:16.5px; font-weight:600;
-    letter-spacing:.01em; color:#241015;
-    background:linear-gradient(180deg, var(--coral-soft), var(--coral));
-    box-shadow:0 12px 30px -12px rgba(255,107,87,.6);
-    display:flex; align-items:center; justify-content:center; gap:9px;
-    transition:transform .12s ease, filter .15s ease;
-  }
-  .primary:active{ transform:translateY(1px) scale(.995); }
-  .primary.stop{ color:var(--ink); background:linear-gradient(180deg,#352B40,#2A2333); box-shadow:none; border:1px solid var(--line-strong); }
-  .primary svg{ width:18px; height:18px; fill:currentColor; }
-
-  .subactions{ display:flex; gap:10px; }
-  .ghost{
-    flex:1; background:none; border:1px solid var(--line-strong); border-radius:13px;
-    padding:12px; font-size:14px; color:var(--muted); display:flex; align-items:center; justify-content:center; gap:7px;
-  }
-  .ghost:hover{ color:var(--ink); border-color:var(--muted); }
-  .ghost svg{ width:15px; height:15px; fill:currentColor; }
   [hidden]{ display:none !important; }
 
+  /* ---------- transport buttons ---------- */
+  .btn-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:9px; width:100%; }
+  .tbtn{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    padding:13px 4px 11px; border-radius:15px;
+    border:1px solid var(--line-strong); background:var(--surface);
+    color:var(--muted); font-size:12px; font-weight:500; letter-spacing:.01em;
+    transition:transform .1s ease, border-color .15s, background .15s, color .15s, opacity .15s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .tbtn svg{ width:23px; height:23px; fill:currentColor; }
+  .tbtn span{ line-height:1; }
+  .tbtn:active:not(:disabled){ transform:scale(.96); }
+  .tbtn:disabled{ opacity:.32; cursor:default; }
+
+  /* each enabled button lights up in its own colour */
+  .tbtn.record:not(:disabled){
+    color:#241015; border-color:transparent;
+    background:linear-gradient(180deg,var(--coral-soft),var(--coral));
+    box-shadow:0 10px 24px -12px rgba(255,107,87,.7);
+  }
+  .tbtn.stop:not(:disabled){ color:var(--ink); border-color:var(--muted); background:var(--surface-2); }
+  .tbtn.loop:not(:disabled){ color:var(--sage); border-color:rgba(127,209,166,.45); background:rgba(127,209,166,.10); }
+  .tbtn.delete:not(:disabled){ color:#E98579; border-color:rgba(233,133,121,.4); }
+  .tbtn.delete:not(:disabled):active{ background:rgba(233,133,121,.12); }
+
+  .mic-note{
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    margin:14px 0 0; font-size:12px; color:var(--muted-2); text-align:center; line-height:1.35;
+  }
+  .mic-note svg{ width:13px; height:13px; fill:var(--muted-2); flex:0 0 auto; }
+
+  /* ---------- volume / speed sliders ---------- */
+  .sliders{ display:flex; flex-direction:column; gap:11px; margin-top:4px; }
+  .slider-row{ display:flex; flex-direction:column; gap:7px; }
+  .slider-row label{
+    display:flex; align-items:baseline; justify-content:space-between;
+    font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:var(--muted-2);
+  }
+  .slider-row .sval{
+    font-family:var(--display); font-size:15px; color:var(--ink); text-transform:none; letter-spacing:0;
+    font-variant-numeric:tabular-nums;
+  }
+  .slider-row input[type="range"]{
+    -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:999px;
+    background:rgba(255,255,255,.10); accent-color:var(--coral); outline-offset:4px;
+  }
+  .slider-row input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%;
+    background:var(--coral); border:3px solid #2A2333; box-shadow:0 2px 8px rgba(0,0,0,.5); cursor:pointer;
+  }
+  .slider-row input[type="range"]::-moz-range-thumb{
+    width:18px; height:18px; border-radius:50%; background:var(--coral);
+    border:3px solid #2A2333; cursor:pointer;
+  }
+  .slider-row input[type="range"]::-moz-range-track{ height:6px; border-radius:999px; background:rgba(255,255,255,.10); }
   /* ---------- info sheet ---------- */
   .sheet-backdrop{
     position:fixed; inset:0; background:rgba(8,6,10,.6); backdrop-filter:blur(3px);
@@ -301,9 +338,9 @@
                 stroke-dasharray="289.027" stroke-dashoffset="289.027"></circle>
       </svg>
 
-      <button class="dial" id="dial" aria-live="polite">
+      <div class="dial" id="dial" aria-live="polite">
         <!-- contents injected by JS -->
-      </button>
+      </div>
     </div>
 
     <!-- interval picker (shown once a phrase exists) -->
@@ -324,19 +361,43 @@
         <button class="step-btn" id="plus" aria-label="More time">+</button>
       </div>
       <div class="hint" id="hint"></div>
+
+      <div class="sliders">
+        <div class="slider-row">
+          <label for="volume">Volume <span class="sval" id="volVal">100%</span></label>
+          <input type="range" id="volume" min="0" max="100" value="100" step="1" />
+        </div>
+        <div class="slider-row">
+          <label for="speed">Speed <span class="sval" id="speedVal">1.0×</span></label>
+          <input type="range" id="speed" min="0.5" max="1.5" value="1" step="0.05" />
+        </div>
+      </div>
     </section>
   </main>
 
   <div class="actions">
-    <button class="primary" id="primary" hidden></button>
-    <div class="subactions" id="subactions" hidden>
-      <button class="ghost" id="preview">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Preview
+    <div class="btn-grid">
+      <button class="tbtn record" id="recordBtn" type="button">
+        <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+        <span>Record</span>
       </button>
-      <button class="ghost" id="rerecord">
-        <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg> Re-record
+      <button class="tbtn stop" id="stopBtn" type="button">
+        <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+        <span>Stop</span>
+      </button>
+      <button class="tbtn loop" id="loopBtn" type="button">
+        <svg viewBox="0 0 24 24"><path d="M7 7h8v2.5L19 6l-4-3.5V5H5v6h2V7zm10 10H9v-2.5L5 18l4 3.5V19h10v-6h-2v4z"/></svg>
+        <span>Play loop</span>
+      </button>
+      <button class="tbtn delete" id="deleteBtn" type="button">
+        <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 2h4v2H4V6h4l1-2z"/></svg>
+        <span>Delete</span>
       </button>
     </div>
+    <p class="mic-note">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm7 10a7 7 0 0 1-6 6.92V21h-2v-3.08A7 7 0 0 1 5 11h2a5 5 0 0 0 10 0h2z"/></svg>
+      Your microphone is only used when you press Record.
+    </p>
   </div>
 </div>
 
@@ -344,7 +405,7 @@
 <div class="sheet-backdrop" id="sheet">
   <div class="sheet" role="dialog" aria-modal="true" aria-label="About Refrain">
     <h2>About Refrain</h2>
-    <p>Record a short phrase, choose how often it should repeat, and tap <b>Start</b>. Refrain plays it back on that beat.</p>
+    <p>Press <b>Record</b> and speak a short phrase, then <b>Stop</b>. Choose how often it should repeat, and press <b>Play loop</b> — Refrain plays it back on that beat. <b>Delete</b> clears it so you can record a new one.</p>
     <p><b>Install it:</b> on iPhone, tap Share → <b>Add to Home Screen</b>. On Android, open the browser menu → <b>Install app</b>. It then opens full-screen and works offline.</p>
     <p><b>Heads up on background play:</b> phones pause web apps and timers when the screen is off or you switch away. Refrain keeps the screen awake while it runs, but for fully reliable looping, keep this screen open.</p>
     <p><b>Microphone:</b> recording needs mic permission, and only works over a secure (https) connection or once installed.</p>
@@ -361,8 +422,10 @@
   const dial = $("dial"), progress = $("progress"), ripples = $("ripples");
   const controls = $("controls"), presets = $("presets");
   const stepVal = $("stepVal"), stepUnit = $("stepUnit"), hint = $("hint");
-  const primary = $("primary"), subactions = $("subactions");
-  const previewBtn = $("preview"), rerecordBtn = $("rerecord");
+  const recordBtn = $("recordBtn"), stopBtn = $("stopBtn"),
+        loopBtn = $("loopBtn"), deleteBtn = $("deleteBtn");
+  const volSlider = $("volume"), volVal = $("volVal"),
+        speedSlider = $("speed"), speedVal = $("speedVal");
   const CIRC = 2 * Math.PI * 46; // circumference of the progress circle
 
   // ---------- state ----------
@@ -370,6 +433,7 @@
   let intervalSec = 10;
   let recordedBlob = null;
   let recDurationSec = 0;
+  let volume = 1, rate = 1;
 
   // audio
   let audioCtx = null, audioBuffer = null, masterGain = null;
@@ -408,7 +472,7 @@
       const AC = window.AudioContext || window.webkitAudioContext;
       audioCtx = new AC();
       masterGain = audioCtx.createGain();
-      masterGain.gain.value = 1;
+      masterGain.gain.value = volume;
       masterGain.connect(audioCtx.destination);
     }
     return audioCtx;
@@ -437,11 +501,15 @@
       try { if (currentSource) currentSource.stop(); } catch (e) {}
       const src = audioCtx.createBufferSource();
       src.buffer = audioBuffer;
+      src.playbackRate.value = rate;
       src.connect(masterGain);
       src.start();
       currentSource = src;
     } else if (previewEl) {
-      try { previewEl.currentTime = 0; previewEl.play().catch(() => {}); } catch (e) {}
+      try {
+        previewEl.volume = volume; previewEl.playbackRate = rate;
+        previewEl.currentTime = 0; previewEl.play().catch(() => {});
+      } catch (e) {}
     }
   }
 
@@ -543,6 +611,7 @@
     if (!recordedBlob) return;
     previewURL = URL.createObjectURL(recordedBlob);
     if (!previewEl) { previewEl = new Audio(); previewEl.preload = "auto"; }
+    previewEl.volume = volume; previewEl.playbackRate = rate;
     previewEl.src = previewURL;
   }
 
@@ -597,14 +666,12 @@
     render();
   }
 
-  // ---------- preview / re-record ----------
-  function doPreview() {
-    if (previewEl) { try { previewEl.currentTime = 0; previewEl.play().catch(() => {}); } catch (e) {} }
-    ripples.classList.remove("fire"); void ripples.offsetWidth; ripples.classList.add("fire");
-  }
-  function doReRecord() {
+  // ---------- delete ----------
+  function deleteRecording() {
+    if (running) stopLoop();
     recordedBlob = null; audioBuffer = null; recDurationSec = 0;
     if (previewURL) { URL.revokeObjectURL(previewURL); previewURL = null; }
+    if (previewEl) { try { previewEl.removeAttribute("src"); previewEl.load(); } catch (e) {} }
     clearStore();
     state = "empty";
     render();
@@ -623,65 +690,54 @@
     saveInterval();
   }
   function updateHint() {
-    if (recordedBlob && isFinite(recDurationSec) && recDurationSec > 0 && intervalSec < recDurationSec) {
-      hint.textContent = `Your phrase is about ${Math.round(recDurationSec)}s long, so it’ll overlap at this interval.`;
+    const eff = recDurationSec / rate;
+    if (recordedBlob && isFinite(eff) && eff > 0 && intervalSec < eff) {
+      hint.textContent = `Your phrase runs about ${Math.round(eff)}s at this speed, so it’ll overlap at this interval.`;
     } else hint.textContent = "";
   }
 
   // ---------- rendering ----------
   function render() {
     renderDial();
-    // controls + actions per state
-    controls.hidden = !(state === "recorded");
-    subactions.hidden = !(state === "recorded");
-
-    if (state === "empty") {
-      primary.hidden = true;
-    } else if (state === "recording") {
-      primary.hidden = true;
-    } else if (state === "recorded") {
-      primary.hidden = false;
-      primary.className = "primary";
-      primary.innerHTML = `${ICON.play} Start`;
-      primary.setAttribute("aria-label", "Start the loop");
-    } else if (state === "running") {
-      controls.hidden = false;        // allow changing interval live
-      subactions.hidden = true;
-      primary.hidden = false;
-      primary.className = "primary stop";
-      primary.innerHTML = `${ICON.stop} Stop`;
-      primary.setAttribute("aria-label", "Stop the loop");
-    }
+    // interval picker + sliders appear once there's a recording
+    controls.hidden = !(state === "recorded" || state === "running");
+    updateButtons();
     updateHint();
+  }
+
+  function updateButtons() {
+    recordBtn.disabled = state !== "empty";
+    stopBtn.disabled   = !(state === "recording" || state === "running");
+    loopBtn.disabled   = state !== "recorded";
+    deleteBtn.disabled = state !== "recorded";
   }
 
   function renderDial() {
     dial.className = "dial";
-    dial.disabled = false;
 
     if (state === "empty") {
       dial.innerHTML =
         `<div class="glyph">${ICON.mic}</div>
-         <div class="dial-label">Record</div>
-         <div class="dial-sub">tap to capture a phrase</div>`;
+         <div class="dial-label">Ready to record</div>
+         <div class="dial-sub">press Record below</div>`;
     } else if (state === "recording") {
       dial.className = "dial is-rec";
       dial.innerHTML =
         `<div class="rec-dot"></div>
          <div class="num" data-clock>0:00</div>
          <div class="dial-label">Recording</div>
-         <div class="dial-sub">tap to stop</div>`;
+         <div class="dial-sub">press Stop when done</div>`;
     } else if (state === "recorded") {
       dial.innerHTML =
         `<div class="glyph">${ICON.play}</div>
          <div class="num">${labelFor(intervalSec)}<span class="unit">${intervalSec % 60 === 0 ? "m" : "s"}</span></div>
-         <div class="dial-label">Tap to start</div>`;
+         <div class="dial-label">Loop interval</div>`;
     } else if (state === "running") {
       dial.className = "dial is-run";
       dial.innerHTML =
         `<div class="num" data-count>${intervalSec}</div>
-         <div class="dial-label">Next in</div>
-         <div class="dial-sub">tap to stop</div>`;
+         <div class="dial-label">Next play in</div>
+         <div class="dial-sub">press Stop to end</div>`;
     }
   }
 
@@ -695,17 +751,14 @@
        <div class="dial-label" style="margin-top:6px">Tap to retry</div>`;
   }
 
-  // ---------- the one big tap handler ----------
-  dial.addEventListener("click", () => {
-    if (state === "empty") startRecording();
-    else if (state === "recording") stopRecording();
-    else if (state === "recorded") startLoop();
+  // ---------- button handlers ----------
+  recordBtn.addEventListener("click", () => { if (state === "empty") startRecording(); });
+  stopBtn.addEventListener("click", () => {
+    if (state === "recording") stopRecording();
     else if (state === "running") stopLoop();
   });
-  primary.addEventListener("click", () => {
-    if (state === "recorded") startLoop();
-    else if (state === "running") stopLoop();
-  });
+  loopBtn.addEventListener("click", () => { if (state === "recorded") startLoop(); });
+  deleteBtn.addEventListener("click", () => { if (state === "recorded") deleteRecording(); });
 
   presets.addEventListener("click", (e) => {
     const b = e.target.closest(".chip"); if (!b) return;
@@ -715,8 +768,22 @@
   $("plus").addEventListener("click", () => setInterval_(intervalSec + stepSize()));
   function stepSize() { return intervalSec >= 60 ? 15 : intervalSec >= 20 ? 5 : 1; }
 
-  previewBtn.addEventListener("click", doPreview);
-  rerecordBtn.addEventListener("click", doReRecord);
+  // ---------- volume / speed ----------
+  volSlider.addEventListener("input", () => {
+    volume = Number(volSlider.value) / 100;
+    volVal.textContent = `${Math.round(volume * 100)}%`;
+    if (masterGain) masterGain.gain.value = volume;
+    if (previewEl) previewEl.volume = volume;
+    saveTuning();
+  });
+  speedSlider.addEventListener("input", () => {
+    rate = Number(speedSlider.value);
+    speedVal.textContent = `${rate.toFixed(1)}×`;
+    if (currentSource) { try { currentSource.playbackRate.value = rate; } catch (e) {} }
+    if (previewEl) previewEl.playbackRate = rate;
+    updateHint();
+    saveTuning();
+  });
 
   // info sheet
   $("infoBtn").addEventListener("click", () => $("sheet").classList.add("open"));
@@ -765,6 +832,8 @@
   }
   function saveInterval() { try { localStorage.setItem("refrain.interval", String(intervalSec)); } catch (e) {} }
   function loadInterval() { try { const v = Number(localStorage.getItem("refrain.interval")); return v >= 1 ? v : null; } catch (e) { return null; } }
+  function saveTuning() { try { localStorage.setItem("refrain.tuning", JSON.stringify({ v: volume, r: rate })); } catch (e) {} }
+  function loadTuning() { try { return JSON.parse(localStorage.getItem("refrain.tuning")); } catch (e) { return null; } }
 
   // ---------- init ----------
   async function init() {
@@ -772,6 +841,14 @@
     const savedInt = loadInterval();
     if (savedInt) intervalSec = clampSec(savedInt);
     setInterval_(intervalSec);
+
+    const t = loadTuning();
+    if (t && typeof t.v === "number") volume = Math.min(1, Math.max(0, t.v));
+    if (t && typeof t.r === "number") rate = Math.min(1.5, Math.max(0.5, t.r));
+    volSlider.value = String(Math.round(volume * 100));
+    volVal.textContent = `${Math.round(volume * 100)}%`;
+    speedSlider.value = String(rate);
+    speedVal.textContent = `${rate.toFixed(1)}×`;
 
     const clip = await loadClip();
     if (clip) {

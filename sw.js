@@ -1,5 +1,5 @@
 /* Refrain service worker — offline app shell + runtime font cache */
-const CACHE = "refrain-v2";
+const CACHE = "refrain-v3";
 const FONT_CACHE = "refrain-fonts-v1";
 const ASSETS = [
   "./",
